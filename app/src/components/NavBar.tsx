@@ -3,19 +3,24 @@ import {
   Box,
   Button,
   Flex,
+  Heading,
+  Link,
   Stack,
   Text,
 } from "@chakra-ui/react";
 import { NavBarMenuItem } from "./NavBarMenuItem";
 import { useMeQuery, useLogoutMutation } from "../generated/graphql";
-import { isServer } from '../utils/isServer';
+import { isServer } from "../utils/isServer";
+import NextLink from "next/link";
+import { useRouter } from "next/router";
 
 interface NavBarProps {}
 
 export const NavBar: React.FC<NavBarProps> = ({}) => {
-  const [{fetching: logoutFetching}, logout] = useLogoutMutation();
+  const router = useRouter();
+  const [{ fetching: logoutFetching }, logout] = useLogoutMutation();
   const [{ data, fetching }] = useMeQuery({
-    pause: isServer()
+    pause: isServer(),
   });
   let body = null;
 
@@ -42,8 +47,9 @@ export const NavBar: React.FC<NavBarProps> = ({}) => {
       <Flex zIndex={1} alignItems={"center"}>
         <Box mr={4}>{data.me.username}</Box>
         <Button
-          onClick={() => {
-            logout();
+          onClick={async () => {
+            await logout();
+            router.reload();
           }}
           backgroundColor="white"
           color={"black"}
@@ -57,7 +63,11 @@ export const NavBar: React.FC<NavBarProps> = ({}) => {
   return (
     <Flex w="100%" mb={8} p={8} bg={"#319795"} color={"white"}>
       <Box flexBasis={{ base: "80%" }} float="left">
-        <Text fontWeight={"bold"}>reddit</Text>
+        <NextLink href="/">
+          <Link>
+            <Heading fontWeight={"bold"}>reddit</Heading>
+          </Link>
+        </NextLink>
       </Box>
       <Box flexBasis={{ base: "20%" }}>{body}</Box>
     </Flex>
